@@ -6,7 +6,7 @@ build/
 *.class
 
 # Storage runtime data
-data/sentinel_data.json.tmp
+data/
 test_data/
 
 # IDE files
