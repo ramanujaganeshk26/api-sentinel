@@ -1,0 +1,33 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Compile Application
+      run: |
+        mkdir -p out/bin
+        find src/main/java -name "*.java" > sources.txt
+        javac -d out/bin @sources.txt
+        cp -r src/main/resources/* out/bin/
+
+    - name: Run Test Suite
+      run: |
+        find src/test/java -name "*.java" > test_sources.txt
+        javac -cp out/bin -d out/bin @test_sources.txt
+        java -cp out/bin com.apisentinel.APISentinelTest
