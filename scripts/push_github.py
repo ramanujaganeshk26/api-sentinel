@@ -1,33 +1,35 @@
 """Publish APISentinel Java project to GitHub as a new public repository."""
+
 import os
 import sys
 import subprocess
 from pathlib import Path
+from typing import Optional, Any
 
 # Add github-daily-agent to sys.path to leverage existing auth configuration
-agent_dir = r"C:\Users\RAM\Desktop\github-daily-agent"
+agent_dir: str = r"C:\Users\RAM\Desktop\github-daily-agent"
 if agent_dir not in sys.path:
     sys.path.insert(0, agent_dir)
 
 import config
 from github import Auth, Github, GithubException
 
-cfg = config.load_config()
+cfg: Any = config.load_config()
 if not cfg.token:
     print("[-] Error: GitHub token not found in config.")
     sys.exit(1)
 
-gh = Github(auth=Auth.Token(cfg.token))
-user = gh.get_user()
+gh: Github = Github(auth=Auth.Token(cfg.token))
+user: Any = gh.get_user()
 
-repo_name = "api-sentinel"
-description = "Autonomous API & Microservice Health Monitor, Latency Tracker, and Incident Management Engine in Java 17"
-project_dir = Path(__file__).resolve().parent.parent
+repo_name: str = "api-sentinel"
+description: str = "Autonomous API & Microservice Health Monitor, Latency Tracker, and Incident Management Engine in Java 17"
+project_dir: Path = Path(__file__).resolve().parent.parent
 
 print(f"[*] Authenticated as: {user.login}")
 
 # Check if repo already exists
-repo = None
+repo: Optional[Any] = None
 try:
     repo = user.get_repo(repo_name)
     print(f"[*] Found existing repository: {repo.html_url}")
@@ -42,8 +44,8 @@ except GithubException:
     print(f"[+] Created repository: {repo.html_url}")
 
 # Authenticated push URL
-auth_url = f"https://x-access-token:{cfg.token}@github.com/{repo.full_name}.git"
-clean_url = f"https://github.com/{repo.full_name}.git"
+auth_url: str = f"https://x-access-token:{cfg.token}@github.com/{repo.full_name}.git"
+clean_url: str = f"https://github.com/{repo.full_name}.git"
 
 try:
     # Set remote to authenticated URL
@@ -51,7 +53,7 @@ try:
 
     # Push main branch
     print(f"[*] Pushing main branch to {clean_url}...")
-    res = subprocess.run(["git", "push", "-u", "origin", "main", "--force"], cwd=project_dir, capture_output=True, text=True)
+    res: subprocess.CompletedProcess[str] = subprocess.run(["git", "push", "-u", "origin", "main", "--force"], cwd=project_dir, capture_output=True, text=True)
     if res.returncode != 0:
         print(f"[-] Push error: {res.stderr}")
         sys.exit(1)
